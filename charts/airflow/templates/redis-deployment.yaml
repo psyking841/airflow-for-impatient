@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.redis.host }}
+spec:
+  replicas: {{ .Values.global.redis.replicas }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: airflow
+        tier: redis
+    spec:
+      hostname: {{ .Values.global.redis.host }}
+      containers:
+      - image: redis:5.0
+        name: airflow-redis
+        command: ["/bin/sh"]
+        args: ["-c", "redis-server --requirepass $REDIS_PASSWORD"]
+        env:
+          - name: REDIS_PASSWORD
+            value: {{ .Values.global.redis.password }}
+        ports:
+        - containerPort: 6379
+        resources: {}
+      restartPolicy: Always
+status: {}

@@ -1,0 +1,13 @@
+{{ if eq .Values.global.db.storageProvider "hostpath" }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dag-volume
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 5Gi
+  hostPath:
+    path: "{{ .Values.global.db.torageHostPath }}"
+{{ end }}

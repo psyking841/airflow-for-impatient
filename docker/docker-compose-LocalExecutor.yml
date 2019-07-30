@@ -1,0 +1,32 @@
+version: '3'
+services:
+    postgres:
+        image: postgres:10.6
+        environment:
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+        ports:
+            - "5432:5432"
+
+    webserver:
+        # Change this if you are using your own image
+        image: psyking841/airflow-ibmcloud:1.10.3
+        restart: always
+        depends_on:
+            - postgres
+        environment:
+            - LOAD_EX=n
+            - EXECUTOR=Local
+            - RBAC=False # Set this option to True to enable webserver authentication
+            - FERNET_KEY=s7evk8jLHku5Q3a19Jc5h83uKkweKtPFuu03NpSluRc=
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+        ports:
+            - "8080:8080"
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3

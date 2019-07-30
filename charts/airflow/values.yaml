@@ -1,0 +1,50 @@
+# Default values for airflow
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  imagePullSecret:
+    name: regcred
+
+  airflow:
+    core:
+      executor: Celery
+      load_examples: "yes"
+    webrbac: "True"
+    image: psyking841/apache-airflow
+    imageTag: 1.10.3
+    fernetKey: "s7evk8jLHku5Q3a19Jc5h83uKkweKtPFuu03NpSluRc="
+    pullPolicy: Always
+    restartPolicy: Always
+    restApiToken: "changeme"
+
+    dag:
+      storageProvider: "ibmcloud" # or hostpath but currently not supported
+      storageSize: "20Gi"
+      storageHostpath: /tmp/dag/ # currently not supported
+
+  db:
+    host: airflow-postgres
+    user: airflow
+    password: airflow
+    database: airflow
+    storageProvider: "ibmcloud" # or hostpath but currently not supported
+    storageSize: "20Gi"
+    storageHostpath: /tmp/airflow_db/ # currently not supported
+    port: 5432
+    replicas: 1
+
+  redis:
+    host: airflow-redis
+    port: 6379
+    replicas: 1
+    password: redispass
+
+  ibmcloud:
+    cluster: "my-cluster"
+    namespace: "default"
+    apiKey: "abcxyz123"
+    region: "us-south"
+
+dbDataPersistentVolumnClaim:
+  enabled: True

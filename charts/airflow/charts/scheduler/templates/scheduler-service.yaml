@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.tier }}
+spec:
+  ports:
+  - name: "{{ .Values.ports.restPortName }}"
+    port: {{ .Values.ports.serviceRestPort }}
+    targetPort: {{ .Values.ports.containerRestPort }}
+  type: ClusterIP
+  selector:
+    app: airflow
+    tier: {{ .Values.tier }}

@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.db.host }}
+spec:
+  replicas: {{ .Values.global.db.replicas }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: airflow
+        tier: db
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.global.db.password }}
+        - name: POSTGRES_USER
+          value: {{ .Values.global.db.user }}
+        - name: POSTGRES_DB
+          value: {{ .Values.global.db.database }}
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        image: postgres:10.6
+        name: airflow-postgres
+        ports:
+        - containerPort: 5432
+        resources: {}
+        volumeMounts:
+        - mountPath: "/var/lib/postgresql/data"
+          name: postgresql-data
+      restartPolicy: Always
+      volumes:
+      - name: postgresql-data
+        persistentVolumeClaim:
+          claimName: airflow-postgresql-data-claim
+status: {}

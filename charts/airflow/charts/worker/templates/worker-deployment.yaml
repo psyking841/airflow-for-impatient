@@ -1,0 +1,79 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.tier }}
+spec:
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: airflow
+        role: airflow-app
+        tier: {{ .Values.tier }}
+    spec:
+      securityContext:
+        fsGroup: 1000
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecret.name }}
+      initContainers:
+      - name: volume-mount-hack
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:1000 /dags"]
+        volumeMounts:
+        - name: dag-persistent-vol
+          mountPath: /dags
+      containers:
+      - name: {{ .Values.tier }}
+        image: {{ .Values.global.airflow.image }}:{{ .Values.global.airflow.imageTag }}
+        imagePullPolicy: {{ .Values.global.airflow.pullPolicy }}
+        args:
+          - {{ .Values.tier }}
+        env:
+        # Airflow settings
+        - name: NAMESPACE
+          value: {{ .Values.global.namespace }}
+        - name: EXECUTOR
+          value: {{ .Values.global.airflow.core.executor }}
+        - name: FERNET_KEY
+          value: "{{ .Values.global.airflow.fernetKey }}"
+        - name: LOAD_EX
+          value: "{{ .Values.global.airflow.core.load_examples }}"
+        # DB settings
+        - name: POSTGRES_HOST
+          value: {{ .Values.global.db.host }}
+        - name: POSTGRES_USER
+          value: {{ .Values.global.db.user }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.global.db.password }}
+        - name: POSTGRES_DB
+          value: {{ .Values.global.db.database }}
+        # Redis settings
+        - name: REDIS_HOST
+          value: {{ .Values.global.redis.host }}
+        - name: REDIS_PASSWORD
+          value: {{ .Values.global.redis.password }}
+        ports:
+        - containerPort: {{ .Values.ports.containerLogPort }}
+        volumeMounts:
+        - name: dag-persistent-vol
+          mountPath: "/usr/local/airflow/dags"
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.ports.containerLogPort }}
+          failureThreshold: 30
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          timeoutSeconds: 20
+        resources:
+          limits:
+            memory: 3Gi
+          requests:
+            memory: 1Gi
+      volumes:
+      - name: dag-persistent-vol
+        persistentVolumeClaim:
+          claimName: dag-volume-claim
+      restartPolicy: Always
+status: {}

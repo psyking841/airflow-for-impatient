@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dag-volume-claim
+  {{- if eq .Values.global.airflow.dag.storageProvider "ibmcloud" }}
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "ibmc-file-bronze"
+  labels:
+    billingType: "hourly"
+    region: us-south
+    zone: dal13
+  {{- end }}
+spec:
+  {{ if eq .Values.global.airflow.dag.storageProvider "ibmcloud" }}
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: "{{ .Values.global.airflow.dag.storageSize }}"
+  storageClassName: ibmc-file-bronze
+  {{ else if eq .Values.global.airflow.dag.storageProvider "hostpath" }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  {{ end }}
+status: {}

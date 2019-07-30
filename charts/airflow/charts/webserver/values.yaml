@@ -1,0 +1,11 @@
+# Authentication is using rbac
+# RBAC is default to True
+webrbac: "True"
+
+serviceName: webserver
+tier: webserver
+replicas: 1
+ports:
+  webPortName: web-ui-port
+  containerWebPort: 8080
+  serviceWebPort: 8080
