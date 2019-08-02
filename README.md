@@ -8,6 +8,10 @@ If you find this repo useful here's how you can help:
 * Help new users with issues they may encounter
 * Support the development of this image and star this repo !
 
+## My other "impatient" K8s manifests
+* [Spark Cluster for Impatient](https://github.com/psyking841/spark-cluster-for-impatient) - Provision a Stand Along Spark Cluster in Minikube
+* [Presto for Impatient]() - Coming soon.
+
 ## Description
 This project is to create an Airflow server on top of Kuberntes for Data Engineering and Science job scheduling. Airflow is an open-source Apache licensed tool for work scheduling.
 
